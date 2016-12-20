@@ -1,10 +1,12 @@
 
 import com.google.inject.{AbstractModule, Provides}
 import java.time.Clock
+import javax.inject.Inject
 
-import models.entities.Stock
+import models.entities.{Quote, Stock}
 import models.persistence.{AbstractBaseDAO, BaseDAO, SlickTables}
-import models.persistence.SlickTables.{QuotesTable, StocksTable}
+//import models.persistence.SlickTables.{QuotesTable, StocksTable}
+import play.api.Application
 
 
 /**
@@ -19,18 +21,18 @@ import models.persistence.SlickTables.{QuotesTable, StocksTable}
  */
 class Module extends AbstractModule {
 
-  import SlickTables.stockTableQ
+ // import SlickTables.stockTableQ
 
   override def configure(): Unit = {
     // Use the system clock as the default implementation of Clock
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone)
   }
 
- @Provides
- def provideStocksDAO : AbstractBaseDAO[StocksTable,Stock] = new BaseDAO[StocksTable,Stock]
+ //@Provides
+// def provideStocksDAO : AbstractBaseDAO[StocksTable,Stock] = new BaseDAO[StocksTable,Stock]
 
-  @Provides
-  def provideQuoteDAO : AbstractBaseDAO[QuotesTable,Stock] = new BaseDAO[QuotesTable,Stock]
+ // @Provides
+ // def provideQuoteDAO : AbstractBaseDAO[QuotesTable,Quote] = new BaseDAO[QuotesTable,Quote]
 }
 
 

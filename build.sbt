@@ -13,6 +13,9 @@ libraryDependencies ++= Seq(
   "com.h2database" % "h2" % "1.4.191",
   cache,
   ws,
-  specs2 % Test)
+  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0" % "test",
+  "org.mockito" % "mockito-core" % "2.3.7" % "test"
+
+)
 
 resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
