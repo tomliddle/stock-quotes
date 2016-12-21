@@ -2,9 +2,8 @@
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import models.QuoteHelper
-import models.entities.{Quote, Stock}
-import models.persistence.AbstractBaseDAO
-import models.persistence.SlickTables.{QuotesTable, StocksTable}
+import models.entities.Stock
+import models.persistence.{QuotePersistence, StockPersistence}
 import org.scalatest.MustMatchers
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -13,6 +12,7 @@ import play.api.libs.ws.WSClient
 import play.api.libs.ws.ahc.AhcWSClient
 import play.api.mvc.Results
 import org.mockito.Mockito._
+
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
@@ -22,8 +22,8 @@ import scala.language.postfixOps
   */
 class QuoteHelperSpec extends PlaySpec with Results with MustMatchers with MockitoSugar {
 
-  val daoStockMock: AbstractBaseDAO[StocksTable, Stock] = mock[AbstractBaseDAO[StocksTable,Stock]]
-  val daoQuoteMock: AbstractBaseDAO[QuotesTable, Quote] = mock[AbstractBaseDAO[QuotesTable,Quote]]
+  val daoStockMock: StockPersistence = mock[StockPersistence]
+  val daoQuoteMock: QuotePersistence = mock[QuotePersistence]
   val wsMock: WSClient = mock[WSClient]
 
   implicit val system = ActorSystem("test")
@@ -33,8 +33,8 @@ class QuoteHelperSpec extends PlaySpec with Results with MustMatchers with Mocki
   val qh = new QuoteHelper {
     override val ec: ExecutionContextExecutor = ExecutionContext.global
     override val logger = Logger("")
-    override val stockDAO: AbstractBaseDAO[StocksTable, Stock] = daoStockMock
-    override val quoteDAO: AbstractBaseDAO[QuotesTable, Quote] = daoQuoteMock
+    override val stockDAO: StockPersistence = daoStockMock
+    override val quoteDAO: QuotePersistence = daoQuoteMock
     override val ws: AhcWSClient = wsc
   }
 
@@ -45,7 +45,7 @@ class QuoteHelperSpec extends PlaySpec with Results with MustMatchers with Mocki
     "return only listed stock" in {
       val stockList = Seq(Stock(tickers.head, "glaxo", "pharma"))
 
-      when(daoStockMock.findByFilter { q => tickers.contains(q.name.toString) }) thenReturn Future { stockList }
+      when(daoStockMock.findById(tickers)) thenReturn Future { stockList }
 
       val f = qh.listedStocks(tickers)
 
@@ -56,7 +56,7 @@ class QuoteHelperSpec extends PlaySpec with Results with MustMatchers with Mocki
     "return 2 stocks" in {
       val stockList = Seq(Stock(tickers.head, "glaxo", "pharma"), Stock(tickers(1), "apple", "tech"))
 
-      when(daoStockMock.findByFilter { q => tickers.contains(q.name.toString) }).thenReturn(Future {stockList})
+      when(daoStockMock.findById(tickers)).thenReturn(Future {stockList})
 
       val f = qh.listedStocks(tickers)
 
@@ -66,7 +66,7 @@ class QuoteHelperSpec extends PlaySpec with Results with MustMatchers with Mocki
     "return 1 stock, one missing" in {
       val stockList = Seq(Stock(tickers.head, "glaxo", "pharma"))
 
-      when(daoStockMock.findByFilter { q => tickers.contains(q.name.toString) }).thenReturn(Future { stockList })
+      when(daoStockMock.findById(tickers)).thenReturn(Future { stockList })
 
       val f = qh.listedStocks(tickers)
 

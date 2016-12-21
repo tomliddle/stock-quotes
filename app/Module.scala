@@ -1,12 +1,6 @@
 
 import com.google.inject.{AbstractModule, Provides}
 import java.time.Clock
-import javax.inject.Inject
-
-import models.entities.{Quote, Stock}
-import models.persistence.{AbstractBaseDAO, BaseDAO, SlickTables}
-//import models.persistence.SlickTables.{QuotesTable, StocksTable}
-import play.api.Application
 
 
 /**

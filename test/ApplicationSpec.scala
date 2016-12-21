@@ -2,14 +2,14 @@ import java.time.Clock
 
 import com.google.inject.{AbstractModule, Provides}
 import models.entities.Stock
-import models.persistence.AbstractBaseDAO
-import models.persistence.SlickTables.StocksTable
+import models.persistence.{AbstractBaseDAO, StockPersistence}
 import org.scalatestplus.play.PlaySpec
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test._
 import play.api.Application
 import play.api.libs.json.{JsObject, JsString}
 import play.api.test.Helpers._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import org.scalatest._
@@ -19,14 +19,14 @@ import org.mockito.Mockito._
 
 class ApplicationSpec extends PlaySpec with MustMatchers with MockitoSugar {
 
-  val daoMock: AbstractBaseDAO[StocksTable, Stock] = mock[AbstractBaseDAO[StocksTable,Stock]]
+  val daoMock:StockPersistence = mock[StockPersistence]
 
   val application: Application = new GuiceApplicationBuilder().overrides(new AbstractModule {
     override def configure(): Unit = {
       bind(classOf[Clock]).toInstance(Clock.systemDefaultZone)
     }
     @Provides
-    def provideStockDAO : AbstractBaseDAO[StocksTable,Stock] = daoMock
+    def provideStockDAO : StockPersistence = daoMock
   }).build
 
   "Routes" should {
@@ -45,7 +45,7 @@ class ApplicationSpec extends PlaySpec with MustMatchers with MockitoSugar {
       route(application, FakeRequest(GET, "/stock/1")).map(status) must equal(Some(OK))
     }
 
-    "send 415 when post to create a supplier without json type" in {
+    "send 415 when put to create a supplier without json type" in {
       route(application, FakeRequest(PUT, "/stock")).map(status) must equal(Some(UNSUPPORTED_MEDIA_TYPE))
     }
 
@@ -68,7 +68,7 @@ class ApplicationSpec extends PlaySpec with MustMatchers with MockitoSugar {
         status) must equal(Some(CREATED))
     }
 
-    "send 500 when post to create a supplier with valid json" in {
+    "send 500 when post to create a supplier with invalid json" in {
       val (name,desc) = ("Apple","Shut up and take my money")
       when(daoMock.insert(Stock("0", name, desc))).thenReturn((Future.failed{new Exception ("Slick exception")}))
       route(application,

@@ -1,45 +1,91 @@
 package models.persistence
 
 import models.entities.{Quote, Stock}
-import models.persistence.DAO.BaseTable
+import slick.lifted.ProvenShape
+import javax.inject.Inject
 import play.api.db.slick.DatabaseConfigProvider
 import slick.driver.JdbcProfile
-import slick.lifted.ProvenShape
+import scala.concurrent.{ExecutionContext, Future}
 
 
-/**
-  * The companion object.
-  */
-class SlickTables(dbConfigProvider: DatabaseConfigProvider) {
 
-  val dbConfig = dbConfigProvider.get[JdbcProfile]
+class StockPersistence @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)(implicit val ec: ExecutionContext) extends AbstractBaseDAO[Stock, String] {
+  protected val dbConfig = dbConfigProvider.get[JdbcProfile]
   import dbConfig.driver.api._
+  val stocksQ = TableQuery[StocksTable]
+
+  override def insert(s: Seq[Stock]): Future[Seq[String]] = {
+    val q = (stocksQ returning stocksQ.map(_.id)) ++= s
+    dbConfig.db.run(q)
+  }
+
+  override def update(s: Stock): Future[Int] = {
+    val q = for { x <- stocksQ if x.id === s.id } yield x
+    dbConfig.db.run(q.update(s))
+  }
+
+  override def findById(ids: Seq[String]): Future[Seq[Stock]] = dbConfig.db.run(stocksQ.filter(_.id inSetBind ids).result)
+  override def findAll: Future[Seq[Stock]] = dbConfig.db.run(stocksQ.result)
+
+  override def delete(ids : Seq[String]): Future[Int] = {
+    val q = stocksQ.filter(_.id inSetBind ids)
+    dbConfig.db.run(q.delete)
+  }
+
 
   /**
     * Stocks table
     * @param tag
     */
-  class StocksTable(tag: Tag) extends BaseTable[Stock](tag, "stocks", dbConfigProvider) {
+  class StocksTable(tag: Tag) extends Table[Stock](tag, "stocks") {
+    def id: Rep[String] = column[String]("id")
     def name: Rep[String] = column[String]("name")
     def desc: Rep[String] = column[String]("desc")
     def * : ProvenShape[Stock] = (id, name, desc) <> (Stock.tupled, Stock.unapply)
   }
+}
 
-  implicit val stockTableQ : TableQuery[StocksTable] = TableQuery[StocksTable]
+
+class QuotePersistence @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)(implicit val ec: ExecutionContext) extends AbstractBaseDAO[Quote, String] {
+  protected val dbConfig = dbConfigProvider.get[JdbcProfile]
+  import dbConfig.driver.api._
+  private val quotesQ = TableQuery[QuotesTable]
+
+  override def insert(stock: Seq[Quote]): Future[Seq[String]] = {
+    val q = (quotesQ returning quotesQ.map(_.id)) ++= stock
+    dbConfig.db.run(q)
+  }
+
+  override def update(s: Quote): Future[Int] = {
+    val q = for { x <- quotesQ if x.id === s.id } yield x
+    dbConfig.db.run(q.update(s))
+  }
+
+  override def findById(ids: Seq[String]): Future[Seq[Quote]] = {
+    val q = quotesQ.filter(_.id inSetBind ids).result
+    dbConfig.db.run(q)
+  }
+  override def findAll: Future[Seq[Quote]] = dbConfig.db.run(quotesQ.result)
+
+  override def delete(ids : Seq[String]): Future[Int] = {
+    val q = quotesQ.filter(s => s.id inSetBind ids)
+    dbConfig.db.run(q.delete)
+  }
 
 
   /**
     * Quotes table
     * @param tag
     */
-  class QuotesTable(tag: Tag) extends BaseTable[Quote](tag, "quotes", dbConfigProvider) {
+  class QuotesTable(tag: Tag) extends Table[Quote](tag, "quotes") {
+    def id: Rep[String] = column[String]("id")
     def price: Rep[Double] = column[Double]("price")
     def * : ProvenShape[Quote] = (id, price) <> (Quote.tupled, Quote.unapply)
   }
-
-  implicit val quoteTableQ : TableQuery[QuotesTable] = TableQuery[QuotesTable]
-
-//  def stockDAO = new BaseDAO[StocksTable,Stock]
-//  def quoteDAO = new BaseDAO[QuotesTable,Quote]
-
 }
+
+
+
+
+
+

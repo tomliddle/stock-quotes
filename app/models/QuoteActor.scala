@@ -3,7 +3,7 @@ package models
 import akka.actor.{Actor, Props}
 import models.QuoteActor.{GetStocks, Stocks, UpdateData}
 import models.entities.{GoogleQuote, Quote, Stock}
-import models.persistence.{AbstractBaseDAO, SlickTables}
+import models.persistence.{QuotePersistence, StockPersistence}
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.json._
 import play.api.libs.ws.{WSClient, WSResponse}
@@ -24,7 +24,7 @@ object QuoteActor {
 }
 /**
   */
-class QuoteActor(val stockDAO: AbstractBaseDAO[StocksTable,Stock], val quoteDAO: AbstractBaseDAO[QuotesTable, Quote], val ws: WSClient)
+class QuoteActor(val stockDAO: StockPersistence, val quoteDAO: QuotePersistence, val ws: WSClient)
                 (implicit val ec: ExecutionContext, implicit val app: Application)
   extends Actor with QuoteHelper {
 
@@ -45,15 +45,15 @@ trait QuoteHelper {
 
   protected implicit val ec: ExecutionContext
   protected val logger: Logger = Logger(getClass)
-  protected val stockDAO: AbstractBaseDAO[StocksTable,Stock]
-  protected val quoteDAO: AbstractBaseDAO[QuotesTable, Quote]
+  protected val stockDAO: StockPersistence
+  protected val quoteDAO: QuotePersistence
   protected val ws: WSClient
 
   def url(ticker: String) = s"https://www.google.com/finance/info?q=$ticker"
 
   def listedStocks(list: Seq[String]): Future[Seq[Stock]] = {
       if (list.isEmpty) stockDAO.findAll
-      else stockDAO.findByFilter { q => list.contains(q.name.toString) }
+      else stockDAO.findById(list)
   }
 
   def updateStocks(): Unit = {
