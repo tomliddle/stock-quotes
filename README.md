@@ -1,13 +1,11 @@
-# play-slick-rest
-The Play Slick Rest is a very simple json rest api showing one way of using Play Framework 2.5 with [slick 3](https://github.com/slick/slick) library for database access.
-
+# stock-quotes
+The stock-quotes app uses Play Framework 2.5 with [slick 3](https://github.com/slick/slick) library for database access.
 
 It supports the following features:
 
-* Generic Data Access Objects, create a DAOS with crud for an entity with just one line using DI
-* Models as case classes and slick models, independent from database driver and profile
+* Generic Interface for CRUD operations allowing some code reuse.
 
-The project was thought to be used as an activator template.
+* Models as case classes and slick models, independent from database driver and profile
 
 #Running
 
@@ -25,16 +23,12 @@ To run all tests (routes and persistence tests):
 
 #Using
 
-	curl --request POST localhost:9000/supplier -H "Content-type: application/json" --data "{\"name\" : \"sup1\",\"desc\" : \"low prices\"}"
+	curl --request POST localhost:9000/stock -H "Content-type: application/json" --data "{\"id\" : \"APPL\",\"name\" : \"Apple\",\"desc\" : \"Apple plc\"}"
 
-	curl localhost:9000/supplier/1
+	curl localhost:9000/stock/APPL
 
 #TODO
 
-Tests
-tableQ in BaseDAO as implicit val
+Update stock quotes periodically using scheduled actor
 
-#Credits
-
-To make this template, I just mixed the play scala template with play slick.
 
