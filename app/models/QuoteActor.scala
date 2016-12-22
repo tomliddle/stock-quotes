@@ -1,6 +1,9 @@
 package models
 
+import javax.inject.Inject
+
 import akka.actor.{Actor, Props}
+import com.google.inject.assistedinject.Assisted
 import models.QuoteActor.{GetStocks, Stocks, UpdateData}
 import models.entities.{GoogleQuote, Quote, Stock}
 import models.persistence.{QuotePersistence, StockPersistence}
@@ -12,21 +15,24 @@ import slick.driver.JdbcProfile
 
 import scala.concurrent.{ExecutionContext, Future}
 import models.util.JsonConverters._
+import play.api.libs.concurrent.InjectedActorSupport
 import play.api.{Application, Logger}
 
 object QuoteActor {
+
+  final val Name: String = "quote-actor"
 
   def props: Props = Props[QuoteActor]
 
   case class GetStocks(list: Seq[String])
   case class Stocks(list: Seq[Stock])
-  case class UpdateData()
+  case class UpdateData(list: Seq[String] = Seq.empty)
 }
 /**
   */
-class QuoteActor(val stockDAO: StockPersistence, val quoteDAO: QuotePersistence, val ws: WSClient)
+class QuoteActor @Inject()(val stockDAO: StockPersistence, val quoteDAO: QuotePersistence, val ws: WSClient)
                 (implicit val ec: ExecutionContext, implicit val app: Application)
-  extends Actor with QuoteHelper {
+  extends Actor with QuoteHelper{
 
   protected lazy val dbConfig: DatabaseConfig[JdbcProfile] = DatabaseConfigProvider.get[JdbcProfile]
 
@@ -35,8 +41,9 @@ class QuoteActor(val stockDAO: StockPersistence, val quoteDAO: QuotePersistence,
       val replyTo = sender
       listedStocks(list).map(replyTo ! Stocks(_))
 
-    case UpdateData() =>
-      updateStocks()
+    case UpdateData(list) =>
+      updateStocks(list)
+
   }
 }
 
@@ -56,8 +63,9 @@ trait QuoteHelper {
       else stockDAO.findById(list)
   }
 
-  def updateStocks(): Unit = {
-    stockDAO.findAll.foreach { stocks =>
+  def updateStocks(list: Seq[String]): Unit = {
+      logger.info(s"updating $list")
+      listedStocks(list).foreach { stocks =>
       stocks.foreach { (s: Stock) =>
         val f: Future[WSResponse] = ws.url(url(s.id)).get()
 

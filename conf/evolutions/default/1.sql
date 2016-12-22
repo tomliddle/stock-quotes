@@ -1,7 +1,8 @@
 # --- !Ups
 
-create table "stocks" ("id" VARCHAR(254) NOT NULL PRIMARY KEY,"name" VARCHAR(254) NOT NULL,"desc" VARCHAR(254) NOT NULL);
+create table "stocks" ("id" VARCHAR(254) NOT NULL PRIMARY KEY, "name" VARCHAR(254) NOT NULL);
 create table "quotes" ("id" VARCHAR(254) NOT NULL PRIMARY KEY,"price" DECIMAL(10,3) NOT NULL);
+
 
 # --- !Downs
 ;

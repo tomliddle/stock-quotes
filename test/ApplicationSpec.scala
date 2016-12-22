@@ -70,7 +70,7 @@ class ApplicationSpec extends PlaySpec with MustMatchers with MockitoSugar {
 
     "send 500 when post to create a supplier with invalid json" in {
       val (name,desc) = ("Apple","Shut up and take my money")
-      when(daoMock.insert(Stock("0", name, desc))).thenReturn((Future.failed{new Exception ("Slick exception")}))
+      when(daoMock.insert(Stock("0", name, desc))).thenReturn(Future.failed{new Exception ("Slick exception")})
       route(application,
         FakeRequest(PUT, "/stock", FakeHeaders(("Content-type","application/json") :: Nil),
           JsObject(Seq("name" -> JsString(name),"desc" -> JsString(desc))))).map(

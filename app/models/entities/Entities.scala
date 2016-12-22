@@ -6,7 +6,7 @@ trait BaseEntity {
   def isValid = true
 }
 
-case class Stock(id: String, name: String, desc: String) extends BaseEntity
+case class Stock(id: String, name: String) extends BaseEntity
 
 case class Quote(id: String, price: Double) extends BaseEntity
 

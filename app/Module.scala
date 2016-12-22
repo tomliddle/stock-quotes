@@ -1,6 +1,14 @@
 
 import com.google.inject.{AbstractModule, Provides}
 import java.time.Clock
+import javax.inject.Named
+
+import models.QuoteActor
+import models.persistence.{QuotePersistence, StockPersistence}
+import play.api.db.slick.DatabaseConfigProvider
+import play.api.libs.concurrent.AkkaGuiceSupport
+
+import scala.concurrent.ExecutionContext
 
 
 /**
@@ -13,20 +21,21 @@ import java.time.Clock
  * adding `play.modules.enabled` settings to the `application.conf`
  * configuration file.
  */
-class Module extends AbstractModule {
+class Module extends AbstractModule with AkkaGuiceSupport {
 
  // import SlickTables.stockTableQ
 
   override def configure(): Unit = {
     // Use the system clock as the default implementation of Clock
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone)
+
+    bind(classOf[StockPersistence]).asEagerSingleton()
+
+    bind(classOf[QuotePersistence]).asEagerSingleton()
+
+    bindActor[QuoteActor](QuoteActor.Name)
+
   }
-
- //@Provides
-// def provideStocksDAO : AbstractBaseDAO[StocksTable,Stock] = new BaseDAO[StocksTable,Stock]
-
- // @Provides
- // def provideQuoteDAO : AbstractBaseDAO[QuotesTable,Quote] = new BaseDAO[QuotesTable,Quote]
 }
 
 

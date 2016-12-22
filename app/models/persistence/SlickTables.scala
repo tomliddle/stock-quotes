@@ -42,8 +42,7 @@ class StockPersistence @Inject()(protected val dbConfigProvider: DatabaseConfigP
   class StocksTable(tag: Tag) extends Table[Stock](tag, "stocks") {
     def id: Rep[String] = column[String]("id")
     def name: Rep[String] = column[String]("name")
-    def desc: Rep[String] = column[String]("desc")
-    def * : ProvenShape[Stock] = (id, name, desc) <> (Stock.tupled, Stock.unapply)
+    def * : ProvenShape[Stock] = (id, name) <> (Stock.tupled, Stock.unapply)
   }
 }
 

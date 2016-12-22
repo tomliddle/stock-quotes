@@ -9,3 +9,6 @@ PUT    /stock                    controllers.StockController.saveStock()
 DELETE /stock/:id                  controllers.StockController.deleteStock(id: String)
 
 
+GET     /quote/:id                 controllers.QuoteController.quote(id : String)
+GET     /quote                 controllers.QuoteController.allQuote
+

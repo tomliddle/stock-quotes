@@ -3,10 +3,9 @@ package controllers
 import java.util.concurrent.TimeUnit
 import javax.inject._
 
-import akka.actor.{ActorRef, ActorSystem, Cancellable, Props}
+import akka.actor.{ActorRef, ActorSystem}
 import models.QuoteActor
-import models.QuoteActor.UpdateData
-import models.entities.{Quote, Stock}
+import models.entities.Stock
 import models.persistence.{QuotePersistence, StockPersistence}
 import play.api.libs.json._
 import play.api.mvc._
@@ -15,27 +14,13 @@ import play.api.db.slick.DatabaseConfigProvider
 import play.api.{Application, Logger}
 import play.api.libs.ws.WSClient
 
-import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 
 @Singleton
-class StockController @Inject()(
-                                 appProvider: Provider[Application],
-                                 dbConfigProvider: DatabaseConfigProvider,
-                                 ws: WSClient,
-                                 system: ActorSystem)
-                               (implicit ec: ExecutionContext) extends Controller {
+class StockController @Inject()(stockDAO: StockPersistence)(implicit ec: ExecutionContext) extends Controller {
 
-
-  protected implicit lazy val app: Application = appProvider.get
   private val logger = Logger(getClass)
-
-  val stockDAO = new StockPersistence(dbConfigProvider)
-  val quoteDAO = new QuotePersistence(dbConfigProvider)
-
-  private val quoteActor: ActorRef = system.actorOf(Props(new QuoteActor(stockDAO, quoteDAO, ws)))
-  private val timer: Cancellable = system.scheduler.schedule(10 seconds, 1 hour, quoteActor, UpdateData())
 
   def allStock: Action[AnyContent] = Action.async {
     stockDAO.findAll.map(x => Ok(Json.toJson(x)))
