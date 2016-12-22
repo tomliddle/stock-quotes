@@ -14,14 +14,16 @@ class StockPersistence @Inject()(protected val dbConfigProvider: DatabaseConfigP
   import dbConfig.driver.api._
   val stocksQ = TableQuery[StocksTable]
 
-  override def insert(s: Seq[Stock]): Future[Seq[String]] = {
-    val q = (stocksQ returning stocksQ.map(_.id)) ++= s
-    dbConfig.db.run(q)
+  override def insert(stock: Seq[Stock]): Future[Int] = {
+    val q = stock.map(s => stocksQ += s)
+    val q2 = DBIO.sequence(q)
+    dbConfig.db.run(q2).map(_.sum)
   }
 
-  override def update(s: Stock): Future[Int] = {
-    val q = for { x <- stocksQ if x.id === s.id } yield x
-    dbConfig.db.run(q.update(s))
+  override def save(stock: Seq[Stock]): Future[Int] = {
+    val q = stock.map(s => stocksQ.insertOrUpdate(s))
+    val q2 = DBIO.sequence(q)
+    dbConfig.db.run(q2).map(_.sum)
   }
 
   override def findById(ids: Seq[String]): Future[Seq[Stock]] = dbConfig.db.run(stocksQ.filter(_.id inSetBind ids).result)
@@ -51,14 +53,16 @@ class QuotePersistence @Inject()(protected val dbConfigProvider: DatabaseConfigP
   import dbConfig.driver.api._
   private val quotesQ = TableQuery[QuotesTable]
 
-  override def insert(stock: Seq[Quote]): Future[Seq[String]] = {
-    val q = (quotesQ returning quotesQ.map(_.id)) ++= stock
-    dbConfig.db.run(q)
+  override def insert(stock: Seq[Quote]): Future[Int] = {
+    val q = stock.map(s => quotesQ += s)
+    val q2 = DBIO.sequence(q)
+    dbConfig.db.run(q2).map(_.sum)
   }
 
-  override def update(s: Quote): Future[Int] = {
-    val q = for { x <- quotesQ if x.id === s.id } yield x
-    dbConfig.db.run(q.update(s))
+  override def save(stock: Seq[Quote]): Future[Int] = {
+    val q = stock.map(s => quotesQ.insertOrUpdate(s))
+    val q2 = DBIO.sequence(q)
+    dbConfig.db.run(q2).map(_.sum)
   }
 
   override def findById(ids: Seq[String]): Future[Seq[Quote]] = {

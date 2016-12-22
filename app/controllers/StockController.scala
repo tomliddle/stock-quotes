@@ -37,19 +37,25 @@ class StockController @Inject()(
   private val quoteActor: ActorRef = system.actorOf(Props(new QuoteActor(stockDAO, quoteDAO, ws)))
   private val timer: Cancellable = system.scheduler.schedule(10 seconds, 1 hour, quoteActor, UpdateData())
 
+  def allStock: Action[AnyContent] = Action.async {
+    stockDAO.findAll.map(x => Ok(Json.toJson(x)))
+  }
+
   def stock(id : String): Action[AnyContent] = Action.async {
     stockDAO.findById(id).map(x => x.fold(NoContent)(res => Ok(Json.toJson(res))))
   }
 
-  def insertStock(id: String): Action[JsValue] = Action.async(parse.json) {
+  def saveStock(): Action[JsValue] = Action.async(parse.json) {
     request =>
       Json.fromJson[Stock](request.body) match {
         case JsSuccess(s: Stock, path: JsPath) =>
-          stockDAO.insert(s).map { n => Created("Id of Stock Added : " + n) }.recoverWith {
-            case e => Future.successful { InternalServerError("There was an error at the server") }
+          stockDAO.save(s).map { n => Created("Id of Stock Added : " + n) }.recoverWith {
+            case e => Future.successful { InternalServerError(s"There was an error at the server ${e.getMessage}") }
           }
 
-        case e: JsError => Future.successful(UnsupportedMediaType)
+        case e: JsError =>
+          logger.warn(s"${e.errors}")
+          Future.successful(UnsupportedMediaType)
       }
   }
 

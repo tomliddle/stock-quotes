@@ -6,11 +6,11 @@ trait AbstractBaseDAO[E, ID] {
 
   implicit val ec: ExecutionContext
 
-  def insert(row : E): Future[ID] = insert(Seq(row)).map(_.head)
-  def insert(rows : Seq[E]): Future[Seq[ID]]
+  def insert(row : E): Future[Int] = insert(Seq(row))
+  def insert(rows : Seq[E]): Future[Int]
 
-  def update(row : E): Future[Int]
-  def update(rows : Seq[E]): Future[Int] = Future.sequence(rows.map(update)).map(_.sum)
+  def save(row : E): Future[Int] = save(Seq(row))
+  def save(rows : Seq[E]): Future[Int]
 
   //def save(row: A): Future[Int]
   //def getOrCreate(row: A): Future[A]

@@ -4,7 +4,8 @@
 
 # Add the stocks we want to monitor
 GET     /stock/:id                 controllers.StockController.stock(id : String)
-PUT    /stock/:id                    controllers.StockController.insertStock(id: String)
+GET     /stock                 controllers.StockController.allStock
+PUT    /stock                    controllers.StockController.saveStock()
 DELETE /stock/:id                  controllers.StockController.deleteStock(id: String)
 
 
