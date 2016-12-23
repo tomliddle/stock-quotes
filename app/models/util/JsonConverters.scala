@@ -1,8 +1,10 @@
 package models.util
 
+import java.sql.Timestamp
+import java.time.{OffsetDateTime, ZoneOffset}
+
 import models.entities.{GoogleQuote, Quote, Stock}
 import play.api.libs.json._
-import play.api.libs.functional.syntax._
 
 /**
   */

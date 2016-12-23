@@ -1,5 +1,6 @@
 package models
 
+import java.time.{LocalDateTime, OffsetDateTime}
 import javax.inject.Inject
 
 import akka.actor.{Actor, Props}
@@ -77,7 +78,14 @@ trait QuoteHelper {
               Json.fromJson[Seq[GoogleQuote]](json) match {
                 case JsSuccess(qs: Seq[GoogleQuote], path: JsPath) =>
                   qs.headOption match {
-                    case Some(q) => quoteDAO.insert(q.toQuote)
+                    case Some(gq) =>
+                      quoteDAO.latest.foreach { l =>
+                        val q = gq.toQuote(OffsetDateTime.now)
+                        if (l.isEmpty || q.price != l.get.price)
+                          quoteDAO.insert(q)
+
+                      }
+
                     case None => logger.error("empty list returned")
                   }
                 case e: JsError => logger.error(s"cannot convert from json $e")

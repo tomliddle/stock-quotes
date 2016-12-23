@@ -1,19 +1,12 @@
 package controllers
 
-import java.util.concurrent.TimeUnit
 import javax.inject._
-
-import akka.actor.{ActorRef, ActorSystem}
-import models.QuoteActor
 import models.entities.Stock
 import models.persistence.{QuotePersistence, StockPersistence}
 import play.api.libs.json._
 import play.api.mvc._
 import models.util.JsonConverters._
-import play.api.db.slick.DatabaseConfigProvider
-import play.api.{Application, Logger}
-import play.api.libs.ws.WSClient
-
+import play.api.Logger
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 

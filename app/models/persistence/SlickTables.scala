@@ -1,5 +1,7 @@
 package models.persistence
 
+import java.sql.Timestamp
+import java.time.{OffsetDateTime, ZoneOffset}
 import models.entities.{Quote, Stock}
 import slick.lifted.ProvenShape
 import javax.inject.Inject
@@ -27,6 +29,7 @@ class StockPersistence @Inject()(protected val dbConfigProvider: DatabaseConfigP
   }
 
   override def findById(ids: Seq[String]): Future[Seq[Stock]] = dbConfig.db.run(stocksQ.filter(_.id inSetBind ids).result)
+
   override def findAll: Future[Seq[Stock]] = dbConfig.db.run(stocksQ.result)
 
   override def delete(ids : Seq[String]): Future[Int] = {
@@ -58,22 +61,37 @@ class QuotePersistence @Inject()(protected val dbConfigProvider: DatabaseConfigP
     dbConfig.db.run(q2).map(_.sum)
   }
 
-  override def save(stock: Seq[Quote]): Future[Int] = {
-    val q = stock.map(s => quotesQ.insertOrUpdate(s))
+  override def save(quote: Seq[Quote]): Future[Int] = {
+    val q = quote.map(s => quotesQ.insertOrUpdate(s))
     val q2 = DBIO.sequence(q)
     dbConfig.db.run(q2).map(_.sum)
   }
 
+  def filterTicker(s: String): Future[Seq[Quote]] = {
+    val q = quotesQ.filter(_.ticker === s).result
+    dbConfig.db.run(q)
+  }
+
   override def findById(ids: Seq[String]): Future[Seq[Quote]] = {
-    val q = quotesQ.filter(_.id inSetBind ids).result
+    val q = quotesQ.filter(_.ticker inSetBind ids).result
     dbConfig.db.run(q)
   }
   override def findAll: Future[Seq[Quote]] = dbConfig.db.run(quotesQ.result)
 
   override def delete(ids : Seq[String]): Future[Int] = {
-    val q = quotesQ.filter(s => s.id inSetBind ids)
+    val q = quotesQ.filter(s => s.ticker inSetBind ids)
     dbConfig.db.run(q.delete)
   }
+
+  def latest: Future[Option[Quote]] = {
+    val q = quotesQ.sortBy(_.time).take(1).result
+    dbConfig.db.run(q.headOption)
+  }
+
+  private implicit val JavaZonedDateTimeMapper = MappedColumnType.base[OffsetDateTime, Timestamp](
+    l => Timestamp.from(l.toInstant),
+    t => OffsetDateTime.ofInstant(t.toInstant, ZoneOffset.UTC)
+  )
 
 
   /**
@@ -81,9 +99,10 @@ class QuotePersistence @Inject()(protected val dbConfigProvider: DatabaseConfigP
     * @param tag
     */
   class QuotesTable(tag: Tag) extends Table[Quote](tag, "quotes") {
-    def id: Rep[String] = column[String]("id")
+    def ticker: Rep[String] = column[String]("ticker")
     def price: Rep[Double] = column[Double]("price")
-    def * : ProvenShape[Quote] = (id, price) <> (Quote.tupled, Quote.unapply)
+    def time: Rep[OffsetDateTime] = column[OffsetDateTime]("datetime")
+    def * : ProvenShape[Quote] = (ticker, price, time) <> (Quote.tupled, Quote.unapply)
   }
 }
 

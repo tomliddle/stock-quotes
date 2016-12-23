@@ -25,14 +25,14 @@ class QuoteController @Inject()(quoteDAO: QuotePersistence, @Named("quote-actor"
 
   private val logger = Logger(getClass)
 
-  private val timer: Cancellable = system.scheduler.schedule(10 seconds, 1 hour, quoteActor, UpdateData())
+  private val timer: Cancellable = system.scheduler.schedule(10 seconds, 10 seconds, quoteActor, UpdateData())
 
   def allQuote: Action[AnyContent] = Action.async {
     quoteDAO.findAll.map(x => Ok(Json.toJson(x)))
   }
 
   def quote(id : String): Action[AnyContent] = Action.async {
-    quoteDAO.findById(id).map(x => x.fold(NoContent)(res => Ok(Json.toJson(res))))
+    quoteDAO.filterTicker(id).map(x => Ok(Json.toJson(x)))
   }
 
 
