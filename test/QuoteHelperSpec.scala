@@ -1,7 +1,7 @@
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
-import models.QuoteHelper
+import models.actors.QuoteHelper
 import models.entities.Stock
 import models.persistence.{QuotePersistence, StockPersistence}
 import org.scalatest.MustMatchers

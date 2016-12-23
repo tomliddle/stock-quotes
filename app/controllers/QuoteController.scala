@@ -1,19 +1,16 @@
 package controllers
 
-import javax.inject.{Inject, Named, Provider, Singleton}
-
-import akka.actor.{ActorRef, ActorSystem, Cancellable, Props}
-import models.QuoteActor
-import models.QuoteActor.UpdateData
-import models.persistence.{QuotePersistence, StockPersistence}
-import play.api.{Application, Logger}
-import play.api.db.slick.DatabaseConfigProvider
-import play.api.libs.json.Json
-import play.api.libs.ws.WSClient
-import play.api.mvc.{Action, AnyContent, Controller}
+import javax.inject.{Inject, Named, Singleton}
+import akka.actor.{ActorRef, ActorSystem, Cancellable}
+import models.actors.PerRequestActorFactory
+import models.actors.QuoteActor.UpdateData
+import models.persistence.QuotePersistence
 import models.util.JsonConverters._
-import scala.concurrent.duration._
+import play.api.Logger
+import play.api.libs.json.Json
+import play.api.mvc.{Action, AnyContent, Controller}
 import scala.concurrent.ExecutionContext
+import scala.concurrent.duration._
 import scala.language.postfixOps
 
 /**

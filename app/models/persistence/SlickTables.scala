@@ -83,8 +83,8 @@ class QuotePersistence @Inject()(protected val dbConfigProvider: DatabaseConfigP
     dbConfig.db.run(q.delete)
   }
 
-  def latest: Future[Option[Quote]] = {
-    val q = quotesQ.sortBy(_.time).take(1).result
+  def latest(ticker: String): Future[Option[Quote]] = {
+    val q = quotesQ.filter(_.ticker === ticker).sortBy(_.time).take(1).result
     dbConfig.db.run(q.headOption)
   }
 

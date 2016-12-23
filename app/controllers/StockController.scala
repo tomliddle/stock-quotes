@@ -2,11 +2,11 @@ package controllers
 
 import javax.inject._
 import models.entities.Stock
-import models.persistence.{QuotePersistence, StockPersistence}
-import play.api.libs.json._
-import play.api.mvc._
+import models.persistence.StockPersistence
 import models.util.JsonConverters._
 import play.api.Logger
+import play.api.libs.json._
+import play.api.mvc._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 

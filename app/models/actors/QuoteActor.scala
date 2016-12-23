@@ -1,23 +1,21 @@
-package models
+package models.actors
 
-import java.time.{LocalDateTime, OffsetDateTime}
+import java.time.OffsetDateTime
 import javax.inject.Inject
 
 import akka.actor.{Actor, Props}
-import com.google.inject.assistedinject.Assisted
-import models.QuoteActor.{GetStocks, Stocks, UpdateData}
+import models.actors.QuoteActor.{GetStocks, Stocks, UpdateData}
 import models.entities.{GoogleQuote, Quote, Stock}
 import models.persistence.{QuotePersistence, StockPersistence}
+import models.util.JsonConverters._
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.json._
 import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.{Application, Logger}
 import slick.backend.DatabaseConfig
 import slick.driver.JdbcProfile
 
 import scala.concurrent.{ExecutionContext, Future}
-import models.util.JsonConverters._
-import play.api.libs.concurrent.InjectedActorSupport
-import play.api.{Application, Logger}
 
 object QuoteActor {
 
@@ -43,8 +41,12 @@ class QuoteActor @Inject()(val stockDAO: StockPersistence, val quoteDAO: QuotePe
       listedStocks(list).map(replyTo ! Stocks(_))
 
     case UpdateData(list) =>
-      updateStocks(list)
+      updateStocks(list, publish)
 
+  }
+
+  private def publish(q: Quote): Unit = {
+    context.system.eventStream.publish(q)
   }
 }
 
@@ -64,7 +66,7 @@ trait QuoteHelper {
       else stockDAO.findById(list)
   }
 
-  def updateStocks(list: Seq[String]): Unit = {
+  def updateStocks(list: Seq[String], fPub: Quote => Unit): Unit = {
       logger.info(s"updating $list")
       listedStocks(list).foreach { stocks =>
       stocks.foreach { (s: Stock) =>
@@ -77,13 +79,14 @@ trait QuoteHelper {
               val json: JsValue = Json.parse(body)
               Json.fromJson[Seq[GoogleQuote]](json) match {
                 case JsSuccess(qs: Seq[GoogleQuote], path: JsPath) =>
+
                   qs.headOption match {
                     case Some(gq) =>
-                      quoteDAO.latest.foreach { l =>
-                        val q = gq.toQuote(OffsetDateTime.now)
+                      val q = gq.toQuote(OffsetDateTime.now)
+                      quoteDAO.latest(q.ticker).foreach { l =>
                         if (l.isEmpty || q.price != l.get.price)
+                          fPub(q)
                           quoteDAO.insert(q)
-
                       }
 
                     case None => logger.error("empty list returned")

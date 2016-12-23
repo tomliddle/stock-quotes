@@ -3,7 +3,7 @@ import com.google.inject.{AbstractModule, Provides}
 import java.time.Clock
 import javax.inject.Named
 
-import models.QuoteActor
+import models.actors.{PerRequestActor, PerRequestActorFactory, QuoteActor}
 import models.persistence.{QuotePersistence, StockPersistence}
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.concurrent.AkkaGuiceSupport
@@ -34,6 +34,8 @@ class Module extends AbstractModule with AkkaGuiceSupport {
     bind(classOf[QuotePersistence]).asEagerSingleton()
 
     bindActor[QuoteActor](QuoteActor.Name)
+
+    bindActorFactory[PerRequestActor, PerRequestActorFactory]
 
   }
 }

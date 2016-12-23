@@ -1,14 +1,9 @@
 package models.entities
 
-import java.time.{LocalDateTime, OffsetDateTime}
+import java.time.OffsetDateTime
 
 
-trait BaseEntity {
-  val id : String
-  def isValid = true
-}
-
-case class Stock(id: String, name: String) extends BaseEntity
+case class Stock(id: String, name: String)
 
 case class Quote(ticker: String, price: Double, datetime: OffsetDateTime)
 
