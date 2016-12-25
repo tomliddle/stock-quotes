@@ -1,6 +1,8 @@
 package models.util
 
-import models.entities.{GoogleQuote, Quote, Stock}
+import entities.Protocol.Quote
+import entities.Stock
+import models.entities.GoogleQuote
 import play.api.libs.json._
 
 /**

@@ -4,8 +4,10 @@ import java.time.OffsetDateTime
 import javax.inject.Inject
 
 import akka.actor.{Actor, Props}
+import entities.Protocol.Quote
+import entities.Stock
 import models.actors.QuoteActor.{GetStocks, Stocks, UpdateData}
-import models.entities.{GoogleQuote, Quote, Stock}
+import models.entities.GoogleQuote
 import models.persistence.{QuotePersistence, StockPersistence}
 import models.util.JsonConverters._
 import play.api.db.slick.DatabaseConfigProvider

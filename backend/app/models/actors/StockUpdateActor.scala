@@ -1,7 +1,7 @@
 package models.actors
 
 import akka.actor.{Actor, ActorRef, Props}
-import models.entities.Quote
+import entities.Protocol.Quote
 import models.persistence.QuotePersistence
 
 import scala.concurrent.ExecutionContext

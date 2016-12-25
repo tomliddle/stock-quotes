@@ -1,6 +1,7 @@
 import java.time.Clock
 
 import com.google.inject.{AbstractModule, Provides}
+import entities.Stock
 import models.entities.Stock
 import models.persistence.{AbstractBaseDAO, StockPersistence}
 import org.scalatestplus.play.PlaySpec

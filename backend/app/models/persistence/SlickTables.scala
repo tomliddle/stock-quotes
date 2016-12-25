@@ -2,11 +2,15 @@ package models.persistence
 
 import java.sql.Timestamp
 import java.time.{OffsetDateTime, ZoneOffset}
-import models.entities.{Quote, Stock}
+
 import slick.lifted.ProvenShape
 import javax.inject.Inject
+
+import entities.Protocol.Quote
+import entities.Stock
 import play.api.db.slick.DatabaseConfigProvider
 import slick.driver.JdbcProfile
+
 import scala.concurrent.{ExecutionContext, Future}
 
 

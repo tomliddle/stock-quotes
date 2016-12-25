@@ -1,6 +1,7 @@
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
+import entities.Stock
 import models.actors.QuoteHelper
 import models.entities.Stock
 import models.persistence.{QuotePersistence, StockPersistence}

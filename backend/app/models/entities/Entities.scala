@@ -2,10 +2,10 @@ package models.entities
 
 import java.time.OffsetDateTime
 
+import entities.Protocol.Quote
 
-case class Stock(id: String, name: String)
 
-case class Quote(ticker: String, price: Double, datetime: OffsetDateTime)
+
 
 // From google api
 // [ {
