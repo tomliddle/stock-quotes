@@ -12,4 +12,5 @@ DELETE /stock/:id                  controllers.StockController.deleteStock(id: S
 GET     /quote/:id                 controllers.QuoteController.quote(id : String)
 GET     /quote                 controllers.QuoteController.allQuote
 
+GET     /                       controllers.SocketController.index
 GET     /update                 controllers.SocketController.socket

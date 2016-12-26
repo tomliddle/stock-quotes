@@ -20,8 +20,8 @@ lazy val common = project.settings(
 
 lazy val backend = (project in file("backend")).settings(
   scalaVersion := scalaV,
-  //routesImport += "config.Routes._",
-  //scalaJSProjects := clients,
+  scalaJSProjects := Seq(frontend),
+  pipelineStages := Seq(scalaJSProd, gzip),
   libraryDependencies ++= Seq(
     "com.typesafe.play" %% "play-slick" % "2.0.0",
     "com.typesafe.play" %% "play-slick-evolutions" % "2.0.0",
