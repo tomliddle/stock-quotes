@@ -22,6 +22,7 @@ class QuoteController @Inject()(quoteDAO: QuotePersistence, @Named("quote-actor"
 
   private val logger = Logger(getClass)
 
+  logger.info("adding timer")
   private val timer: Cancellable = system.scheduler.schedule(10 seconds, 10 seconds, quoteActor, UpdateData())
 
   def allQuote: Action[AnyContent] = Action.async {

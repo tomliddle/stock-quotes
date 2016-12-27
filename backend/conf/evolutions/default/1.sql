@@ -5,6 +5,6 @@ create table "quotes" ("ticker" VARCHAR(254) NOT NULL,"price" DECIMAL(10,3) NOT 
 
 
 # --- !Downs
-;
+
 drop table "stocks";
-drop table "quotes"
+drop table "quotes";

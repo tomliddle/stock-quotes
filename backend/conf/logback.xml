@@ -24,8 +24,12 @@
     <appender-ref ref="STDOUT" />
   </appender>
 
-  <logger name="play" level="INFO" />
-  <logger name="application" level="DEBUG" />
+  <logger name="play" level="WARN" />
+  <logger name="application" level="WARN" />
+  <logger name="o.a.n.c.DefaultChannelPool" level="WARN" />
+  <logger name="s.c.QueryCompilerBenchmark" level="WARN" />
+  <logger name="com.ning.http.client" level="WARN"/>
+
 
   <!-- Off these ones as they are annoying, and anyway we manage configuration ourselves -->
   <logger name="com.avaje.ebean.config.PropertyMapLoader" level="OFF" />
@@ -33,7 +37,7 @@
   <logger name="com.avaje.ebeaninternal.server.lib.BackgroundThread" level="OFF" />
   <logger name="com.gargoylesoftware.htmlunit.javascript" level="OFF" />
 
-  <root level="WARN">
+  <root level="INFO">
     <appender-ref ref="ASYNCFILE" />
     <appender-ref ref="ASYNCSTDOUT" />
   </root>

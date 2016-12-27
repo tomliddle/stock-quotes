@@ -6,7 +6,7 @@ import java.time.{OffsetDateTime, ZoneOffset}
 import slick.lifted.ProvenShape
 import javax.inject.Inject
 
-import entities.Protocol.Quote
+import entities.Quote
 import entities.Stock
 import play.api.db.slick.DatabaseConfigProvider
 import slick.driver.JdbcProfile
@@ -104,7 +104,7 @@ class QuotePersistence @Inject()(protected val dbConfigProvider: DatabaseConfigP
     */
   class QuotesTable(tag: Tag) extends Table[Quote](tag, "quotes") {
     def ticker: Rep[String] = column[String]("ticker")
-    def price: Rep[Double] = column[Double]("price")
+    def price: Rep[BigDecimal] = column[BigDecimal]("price")
     def time: Rep[OffsetDateTime] = column[OffsetDateTime]("datetime")
     def * : ProvenShape[Quote] = (ticker, price, time) <> (Quote.tupled, Quote.unapply)
   }

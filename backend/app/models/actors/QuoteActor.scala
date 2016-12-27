@@ -4,7 +4,7 @@ import java.time.OffsetDateTime
 import javax.inject.Inject
 
 import akka.actor.{Actor, Props}
-import entities.Protocol.Quote
+import entities.Quote
 import entities.Stock
 import models.actors.QuoteActor.{GetStocks, Stocks, UpdateData}
 import models.entities.GoogleQuote
@@ -18,6 +18,7 @@ import slick.backend.DatabaseConfig
 import slick.driver.JdbcProfile
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.math.BigDecimal.RoundingMode
 
 object QuoteActor {
 
@@ -86,7 +87,8 @@ trait QuoteHelper {
                     case Some(gq) =>
                       val q = gq.toQuote(OffsetDateTime.now)
                       quoteDAO.latest(q.ticker).foreach { l =>
-                        if (l.isEmpty || q.price != l.get.price)
+                        if (l.isEmpty || !q.price.equals(l.get.price.setScale(2, RoundingMode.HALF_UP)))
+                          logger.info(s"adding quote $l $q")
                           fPub(q)
                           quoteDAO.insert(q)
                       }

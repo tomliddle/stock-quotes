@@ -1,18 +1,15 @@
 package models.actors
 
 import akka.actor.{Actor, ActorRef, Props}
-import entities.Protocol.Quote
+import entities.Quote
 import models.persistence.QuotePersistence
-
 import scala.concurrent.ExecutionContext
 
-
 object StockUpdateActor {
-  def props(out: ActorRef, tickers: Seq[String], quoteDAO: QuotePersistence)(implicit ec: ExecutionContext): Props = Props(new StockUpdateActor(out, tickers, quoteDAO))
-
+  def props(out: ActorRef, quoteDAO: QuotePersistence)(implicit ec: ExecutionContext): Props = Props(new StockUpdateActor(out, quoteDAO))
 }
 
-class StockUpdateActor(out: ActorRef, tickers: Seq[String], quoteDAO: QuotePersistence)(implicit ec: ExecutionContext) extends Actor {
+class StockUpdateActor(out: ActorRef, quoteDAO: QuotePersistence)(implicit ec: ExecutionContext) extends Actor {
 
   context.system.eventStream.subscribe(self, classOf[Quote])
 
@@ -21,7 +18,6 @@ class StockUpdateActor(out: ActorRef, tickers: Seq[String], quoteDAO: QuotePersi
       quoteDAO.latest(msg).foreach(_.foreach(out ! _))
 
     case q: Quote =>
-      out ! q
+      out ! q.toFrontEndQuote
   }
-
 }
