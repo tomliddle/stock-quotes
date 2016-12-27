@@ -3,6 +3,7 @@ package entities
 
 import org.scalajs.dom
 import org.scalajs.dom.raw._
+
 import scala.scalajs.js
 
 case class NewQuote(ticker: String, price: Double, date: String)
@@ -24,8 +25,15 @@ object Frontend extends js.JSApp {
     }
     chat.onmessage = { (event: MessageEvent) ⇒
       val quote = upickle.default.read[FrontEndQuote](event.data.toString)
+      val text = s"received message ${quote.toString}"
 
-      quotesDiv.innerHTML = s"received message ${quote.toString}"
+      val tickerDiv: Element = dom.document.getElementById(quote.ticker)
+      if (tickerDiv != null) tickerDiv.innerHTML = text
+      else {
+        val child = dom.document.createElement("div")
+        child.innerHTML = s"<div id='${quote.ticker}'>$text</div>"
+        quotesDiv.appendChild(child)
+      }
     }
     chat.onclose = { (event: Event) ⇒
       quotesDiv.innerHTML = "closed"

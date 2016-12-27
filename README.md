@@ -27,8 +27,11 @@ To run all tests (routes and persistence tests):
 
 	curl localhost:9000/stock/APPL
 
+	view at localhost:9000
+
+
+
 #TODO
 
-Update stock quotes periodically using scheduled actor
-
+Use jquery scalajs instead of dom
 
