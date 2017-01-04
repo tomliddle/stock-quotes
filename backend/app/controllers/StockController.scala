@@ -11,6 +11,10 @@ import play.api.mvc._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.postfixOps
 
+/**
+  * Handles the stock CRUD operations
+  * @param stockDAO Stock DAO
+  */
 @Singleton
 class StockController @Inject()(stockDAO: StockPersistence)(implicit ec: ExecutionContext) extends Controller {
 

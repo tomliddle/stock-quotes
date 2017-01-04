@@ -14,7 +14,11 @@ import slick.driver.JdbcProfile
 import scala.concurrent.{ExecutionContext, Future}
 
 
-
+/**
+  * Handles Stock table persistence
+  * @param dbConfigProvider
+  * @param ec
+  */
 class StockPersistence @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)(implicit val ec: ExecutionContext) extends AbstractBaseDAO[Stock, String] {
   protected val dbConfig = dbConfigProvider.get[JdbcProfile]
   import dbConfig.driver.api._
@@ -53,7 +57,11 @@ class StockPersistence @Inject()(protected val dbConfigProvider: DatabaseConfigP
   }
 }
 
-
+/**
+  * Handles Quote table persistence
+  * @param dbConfigProvider
+  * @param ec
+  */
 class QuotePersistence @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)(implicit val ec: ExecutionContext) extends AbstractBaseDAO[Quote, String] {
   protected val dbConfig = dbConfigProvider.get[JdbcProfile]
   import dbConfig.driver.api._
@@ -92,6 +100,9 @@ class QuotePersistence @Inject()(protected val dbConfigProvider: DatabaseConfigP
     dbConfig.db.run(q.headOption)
   }
 
+  /**
+    * Handles mapping from OffsetDateTime to an sql.Timestamp to store in the database
+    */
   private implicit val JavaZonedDateTimeMapper = MappedColumnType.base[OffsetDateTime, Timestamp](
     l => Timestamp.from(l.toInstant),
     t => OffsetDateTime.ofInstant(t.toInstant, ZoneOffset.UTC)
@@ -109,9 +120,3 @@ class QuotePersistence @Inject()(protected val dbConfigProvider: DatabaseConfigP
     def * : ProvenShape[Quote] = (ticker, price, time) <> (Quote.tupled, Quote.unapply)
   }
 }
-
-
-
-
-
-

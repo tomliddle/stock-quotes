@@ -2,6 +2,12 @@ package models.persistence
 
 import scala.concurrent.{ExecutionContext, Future}
 
+/**
+  * Abstract DAO class. Should save a couple of implementations
+  * Doesn't allow us to abstract findBy((E) => Boolean) as some macros in Slick don't allow it
+  * @tparam E Entity
+  * @tparam ID Id type
+  */
 trait AbstractBaseDAO[E, ID] {
 
   implicit val ec: ExecutionContext
@@ -11,9 +17,6 @@ trait AbstractBaseDAO[E, ID] {
 
   def save(row : E): Future[Int] = save(Seq(row))
   def save(rows : Seq[E]): Future[Int]
-
-  //def save(row: A): Future[Int]
-  //def getOrCreate(row: A): Future[A]
 
   def findById(id : ID): Future[Option[E]] = findById(Seq(id)).map(_.headOption)
   def findById(id : Seq[ID]): Future[Seq[E]]

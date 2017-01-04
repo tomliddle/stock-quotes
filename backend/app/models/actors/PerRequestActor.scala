@@ -7,7 +7,9 @@ import models.actors.PerRequestActor.{Test, TestReply}
 import play.api.Application
 import scala.concurrent.ExecutionContext
 
-
+/**
+  * Required for DI of an actor per request
+  */
 trait PerRequestActorFactory {
   def apply(tickers: Seq[String]): Actor
 }
@@ -19,12 +21,13 @@ object PerRequestActor {
   case class TestReply(overrides: Seq[String])
 
 }
-/**
-  */
-class PerRequestActor @Inject()(@Assisted tickers: Seq[String])
-                          (implicit val ec: ExecutionContext, implicit val app: Application)
-  extends Actor {
 
+/**
+  * Created per request
+  * @param tickers
+  */
+class PerRequestActor @Inject()(@Assisted tickers: Seq[String]) (implicit val ec: ExecutionContext, implicit val app: Application)
+  extends Actor {
 
   def receive: Receive = {
     case Test() =>

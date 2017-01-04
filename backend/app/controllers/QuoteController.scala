@@ -14,6 +14,9 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 
 /**
+  * Controller to handle quotes
+  * @param quoteDAO DAO for quotes
+  * @param quoteActor actor to handle the message from the timer to update the data
   */
 @Singleton
 class QuoteController @Inject()(quoteDAO: QuotePersistence, @Named("quote-actor") quoteActor: ActorRef, system: ActorSystem)

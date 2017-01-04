@@ -11,6 +11,13 @@ import play.api.mvc.{Action, Controller}
 
 import scala.concurrent.ExecutionContext
 
+/**
+  * Actor to demonstrate a per-request pattern using Play dependency injection
+  * @param quoteDAO access to the quote table
+  * @param system actorSystem
+  * @param praFactory actorFactory to enable DI injection of actors
+  * @param ec
+  */
 class PerRequestController @Inject()(quoteDAO: QuotePersistence, implicit val system: ActorSystem, praFactory: PerRequestActorFactory)
                                   (implicit ec: ExecutionContext) extends Controller with InjectedActorSupport {
 

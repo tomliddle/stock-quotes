@@ -64,11 +64,21 @@ trait QuoteHelper {
 
   def url(ticker: String) = s"https://www.google.com/finance/info?q=$ticker"
 
+  /**
+    * Get the listed stocks
+    * @param list
+    * @return
+    */
   def listedStocks(list: Seq[String]): Future[Seq[Stock]] = {
       if (list.isEmpty) stockDAO.findAll
       else stockDAO.findById(list)
   }
 
+  /**
+    * Update the list of stocks in the database and call the callback method
+    * @param list list of stocks
+    * @param fPub publish method for a stock quote
+    */
   def updateStocks(list: Seq[String], fPub: Quote => Unit): Unit = {
       logger.info(s"updating $list")
       listedStocks(list).foreach { stocks =>
